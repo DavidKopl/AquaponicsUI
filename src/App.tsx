@@ -1,41 +1,13 @@
 import React from 'react';
 import Header from './components/Header';
+import DifferentLength from './components/LineChart';
+import ArcDesign from './components/Gauge';
 // import './index.css';
 
 function App() {
   return (
     <>
       <Header />
-      {/* <div className="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-lg flex items-center gap-x-4">
-        <div className="shrink-0"></div>
-        <div>
-          <div className="text-xl font-medium text-black">ChitChat</div>
-          <p className="text-slate-500">You have a new message!</p>
-        </div>
-      </div>
-      <p>Hover button</p>
-      <button className="bg-sky-500 hover:bg-sky-700">Save changes</button>
-      <button className="bg-violet-500 hover:bg-violet-600 active:bg-violet-700 focus:outline-none focus:ring focus:ring-violet-300 ...">Save changes</button>
-      <p>Error state</p>
-      <form>
-        <label className="block">
-          <span className="block text-sm font-medium text-slate-700">Username</span>
-          <input
-            type="text"
-            value="tbone"
-            disabled
-            className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md text-sm shadow-sm placeholder-slate-400
-      focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500
-      disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none
-      invalid:border-pink-500 invalid:text-pink-600
-      focus:invalid:border-pink-500 focus:invalid:ring-pink-500
-    "
-          />
-        </label>
-      <button className="py-2 px-5 bg-violet-500 text-white font-semibold rounded-full shadow-md hover:bg-violet-700 focus:outline-none focus:ring focus:ring-violet-400 focus:ring-opacity-75">Save changes</button>
-
-      <button className="btn-primary">Save changes</button> 
-      </form>*/}
       <blockquote className="text-2xl font-semibold italic text-center text-slate-900">
         Moderní zemědělství
         <span className="before:block before:absolute before:-inset-1 before:-skew-y-3 before:bg-green-500 relative inline-block ml-2 mr-2">
@@ -43,6 +15,15 @@ function App() {
         </span>
         kde data přicházejí
       </blockquote>
+      <DifferentLength />
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <ArcDesign value={1000} min={400} max={1600} opt={1000} name="EC" />
+        <ArcDesign value={6.6} min={0} max={14} opt={6.5} name="pH" />
+        <ArcDesign value={8} min={0} max={20} opt={8} name="Dissolved Oxygen" />
+        <ArcDesign value={65} min={0} max={100} opt={50} name="Humidity" />
+        <ArcDesign value={22} min={0} max={50} opt={22} name="Temperature (°C)" />
+        <ArcDesign value={18} min={0} max={40} opt={18} name="Water Temperature (°C)" />
+      </div>
     </>
   );
 }
