@@ -4,7 +4,7 @@ import { LineChart } from '@mui/x-charts/LineChart';
 // Uchování poslední platné hodnoty
 let lastValidValue: number | null = null;
 
-const getLastValidValue = (index: number, data: (number | null)[]) => {
+const getLastValidValue = (data: (number | null)[]) => {
   if (lastValidValue !== null) {
     // Pokud už byla nalezena platná hodnota, vrátí ji
     return lastValidValue;
@@ -30,14 +30,13 @@ export default function DifferentLength() {
       series={seriesData.map((series, seriesIndex) => ({
         ...series,
         valueFormatter: (value, context) => {
-          const { dataIndex } = context;
           // Získání dat pro aktuální sérii
           const data = seriesData[seriesIndex].data;
-          const lastValidValue = getLastValidValue(dataIndex, data);
+          const lastValidValue = getLastValidValue(data);
           return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
         },
       }))}
-      height={200}
+      height={300}
       margin={{ top: 10, bottom: 20 }}
     />
   );
