@@ -1,10 +1,10 @@
 const express = require('express');
 const app = express();
+require('dotenv').config();
 const connectDB = require('./db'); // Importování připojení k databázi
 const validateData = require('./middleware/validateData');
 const Data = require('./model/dataModel'); // Importování modelu pro uložení dat
 const { calculateVPD, calculateLeafVPD, calculateRHForLeafVPD, calculateRHForVPD } = require('./controllers/VPDFunctions'); // Importování funkcí
-const port = 3000;
 
 // Middleware pro zpracování JSON požadavků
 app.use(express.json());
@@ -86,6 +86,6 @@ app.get('/config', (req, res) => {
   res.json(config);
 });
 // Spuštění serveru
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server running on http://0.0.0.0:${port}`);
+app.listen(process.env.PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://0.0.0.0:${process.env.PORT}`);
 });
