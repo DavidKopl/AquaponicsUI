@@ -2,11 +2,12 @@
   "name": "aquaponics",
   "version": "1.0.0",
   "main": "index.js",
+  
   "scripts": {
-  "install": "npm install --prefix client && npm install --prefix server",
+  "install": "npm install --prefix client && npm install --prefix server", 
   "build:client": "npm run build --prefix client",
-  "build": "npm install --prefix server",
-  "start": "npm run start:server",
+  "build": "npm install --prefix server", 
+  "start": "npm run start:server", 
   "start:server": "npm start --prefix server"
 },
   "repository": {
