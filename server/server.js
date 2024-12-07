@@ -86,6 +86,6 @@ app.get('/config', (req, res) => {
   res.json(config);
 });
 // Spuštění serveru
-app.listen(process.env.PORT, '86.49.249.103', () => {
-  console.log(`Server running on http://86.49.249.103:${process.env.PORT}`);
+app.listen(process.env.PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://0.0.0.0:${process.env.PORT}`);
 });
