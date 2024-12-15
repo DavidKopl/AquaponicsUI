@@ -2,6 +2,9 @@ const mongoose = require('mongoose');
 
 const dataSchema = new mongoose.Schema({
   sensor_id: String,
+  wifi_ssid: String,
+  wifi_password: String,
+  timesleep: Number,
   timestamp: { type: Date, default: Date.now },
   temperature: Number,
   humidity: Number,
