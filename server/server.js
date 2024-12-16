@@ -213,6 +213,25 @@ app.get('/config', (req, res) => {
   };
   res.json(config);
 });
+
+// Endpoint pro získání posledních dat
+app.get('/data/latest-data', async (req, res) => {
+  try {
+    // Získání posledního záznamu z databáze
+    const latestData = await Data.findOne().sort({ timestamp: -1 }).exec();
+
+    if (!latestData) {
+      return res.status(404).json({ message: 'No data found' });
+    }
+
+    // Vrácení posledního záznamu
+    res.json(latestData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 // Spuštění serveru
 app.listen(process.env.PORT, '0.0.0.0', () => {
   console.log(`Server running on http://0.0.0.0:${process.env.PORT}`);
