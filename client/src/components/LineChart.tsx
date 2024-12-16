@@ -46,7 +46,7 @@ export default function MyLineChart({ selectedParameter, label, unit, color }: M
   // Funkce pro fetchování dat z API
   const fetchData = async (granularity: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/data/sensor_data?granularity=${granularity}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/data/sensor_data?granularity=${granularity}`);
       const data = await response.json();
 
       // Převeďte timestamp na Date objekty

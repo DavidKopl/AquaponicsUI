@@ -13,7 +13,7 @@ function App() {
   useEffect(() => {
     const fetchLatestData = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/data/latest-data');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/data/latest-data`);
         setLatestData(response.data); // Uložíme data do stavu
       } catch (err) {
         console.error(err);
