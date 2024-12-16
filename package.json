@@ -29,6 +29,7 @@
     "concurrently": "^9.1.0"
   },
   "dependencies": {
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0"
   }
 }
