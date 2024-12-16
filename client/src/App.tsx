@@ -28,6 +28,7 @@ function App() {
   }
 
   if (!latestData) {
+    setError(null);
     return <div>Loading...</div>;
   }
 
