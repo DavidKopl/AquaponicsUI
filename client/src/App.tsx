@@ -5,7 +5,6 @@ import ArcDesign from './components/Gauge';
 import axios from 'axios';
 
 function App() {
-  // Stavy pro uchování dat
   const [latestData, setLatestData] = useState(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -14,26 +13,31 @@ function App() {
     const fetchLatestData = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/data/latest-data`);
-        setLatestData(response.data); // Uložíme data do stavu
+        if (response.data) {
+          setLatestData(response.data); // Uložíme data do stavu
+        } else {
+          setError('No data available'); // Pokud nejsou data, nastavíme chybu
+        }
       } catch (err) {
         console.error(err);
+        setError('Failed to fetch data'); // Nastavíme chybu při selhání požadavku
       }
     };
 
     fetchLatestData();
   }, []); // Prázdné pole znamená, že se funkce spustí pouze jednou při prvním renderu
 
+  // Podmínky pro zobrazení chyb nebo načítání
   if (error) {
     return <div>{error}</div>;
   }
 
   if (!latestData) {
-    setError('No data available');
     return <div>Loading...</div>;
   }
 
   // Vytvoření proměnných pro hodnoty z posledního záznamu
-  const { temperature, humidity, co2, vpd: vpd, ph, ec, do: dissolvedOxygen } = latestData;
+  const { temperature, humidity, co2, vpd, ph, ec, do: dissolvedOxygen } = latestData;
 
   return (
     <>
