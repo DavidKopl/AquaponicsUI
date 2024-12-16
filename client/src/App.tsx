@@ -7,7 +7,7 @@ import axios from 'axios';
 function App() {
   // Stavy pro uchování dat
   const [latestData, setLatestData] = useState(null);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Načítání dat při načtení komponenty
   useEffect(() => {
@@ -28,7 +28,7 @@ function App() {
   }
 
   if (!latestData) {
-    setError(null);
+    setError('No data available');
     return <div>Loading...</div>;
   }
 
