@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 require('dotenv').config();
 const connectDB = require('./db'); // Importování připojení k databázi
+const cors = require('cors');
 const validateData = require('./middleware/validateData');
 const Data = require('./model/dataModel'); // Importování modelu pro uložení dat
 // const Config = require('./model/configModel'); // Importování modelu pro uložení dat
@@ -9,9 +10,67 @@ const { calculateVPD, calculateLeafVPD, calculateRHForLeafVPD, calculateRHForVPD
 
 // Middleware pro zpracování JSON požadavků
 app.use(express.json());
-
+app.use(cors());
 // Připojení k MongoDB
 connectDB();
+
+const aggregateData = (data, interval) => {
+  let aggregatedData = [];
+  let currentInterval = Math.floor(data[0].timestamp / interval); // Zaokrouhlení na interval
+  let tempSum = 0;
+  let humiditySum = 0;
+  let co2Sum = 0;
+  let ecSum = 0;
+  let phSum = 0;
+  let count = 0;
+
+  data.forEach((item) => {
+    const intervalKey = Math.floor(item.timestamp / interval);
+
+    if (intervalKey === currentInterval) {
+      // Sčítáme hodnoty pro tento interval
+      tempSum += item.temperature;
+      humiditySum += item.humidity;
+      co2Sum += item.co2;
+      ecSum += item.ec;
+      phSum += item.ph;
+      count++;
+    } else {
+      // Přidáme průměr pro předchozí interval
+      aggregatedData.push({
+        timestamp: currentInterval * interval,
+        temperature: tempSum / count,
+        humidity: humiditySum / count,
+        co2: co2Sum / count,
+        ec: ecSum / count,
+        ph: phSum / count,
+      });
+
+      // Přepneme na nový interval
+      currentInterval = intervalKey;
+      tempSum = item.temperature;
+      humiditySum = item.humidity;
+      co2Sum = item.co2;
+      ecSum = item.ec;
+      phSum = item.ph;
+      count = 1;
+    }
+  });
+
+  // Přidáme poslední interval
+  if (count > 0) {
+    aggregatedData.push({
+      timestamp: currentInterval * interval,
+      temperature: tempSum / count,
+      humidity: humiditySum / count,
+      co2: co2Sum / count,
+      ec: ecSum / count,
+      ph: phSum / count,
+    });
+  }
+
+  return aggregatedData;
+};
 
 // Endpoint pro příjem/posílání dat do MongoDb
 app.post('/data', validateData, (req, res) => {
@@ -50,6 +109,51 @@ app.post('/data', validateData, (req, res) => {
       });
   } else {
     res.status(400).send('Missing required fields');
+  }
+});
+
+// Endpoint pro získání dat
+// app.get('/data/sensor_data', async (req, res) => {
+//   try {
+//     const rawData = await Data.find();
+//     const formattedData = rawData.map((item) => ({
+//       sensor_id: item.sensor_id,
+//       temperature: item.temperature,
+//       humidity: item.humidity,
+//       co2: item.co2,
+//       ec: item.ec,
+//       ph: item.ph,
+//       do: item.do,
+//       vpd: {
+//         current_air_VPD: item.vpd.current_air_VPD,
+//         current_leaf_VPD: item.vpd.current_leaf_VPD,
+//         rh_for_leaf_VPD_Optimum: item.vpd.rh_for_leaf_VPD_Optimum,
+//         rh_for_leaf_VPD_min: item.vpd.rh_for_leaf_VPD_min,
+//         rh_for_leaf_VPD_max: item.vpd.rh_for_leaf_VPD_max,
+//       },
+//       target_vpd: item.target_vpd,
+//       adc_readings: item.adc_readings,
+//       relays: item.relays,
+//       sensor_errors: item.sensor_errors,
+//     }));
+//     res.json(formattedData);
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// });
+
+app.get('/data/sensor_data', async (req, res) => {
+  try {
+    const rawData = await Data.find(); // Načteme všechna data z databáze
+    const interval = 10 * 60 * 1000; // 10 minut (v milisekundách)
+
+    // Agregace dat za 10 minutové intervaly
+    const aggregatedData = aggregateData(rawData, interval);
+
+    // Vrátíme zpracovaná data
+    res.json(aggregatedData);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 

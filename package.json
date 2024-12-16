@@ -2,14 +2,14 @@
   "name": "aquaponics",
   "version": "1.0.0",
   "main": "index.js",
-  
   "scripts": {
-  "install": "npm install --prefix client && npm install --prefix server", 
-  "build:client": "npm run build --prefix client",
-  "build": "npm install --prefix server", 
-  "start": "npm run start:server", 
-  "start:server": "npm start --prefix server"
-},
+    "install": "npm install --prefix client && npm install --prefix server",
+    "build:client": "npm run build --prefix client",
+    "build": "npm install --prefix server",
+    "start": "concurrently \"npm run start:server\" \"npm run start:client\"",
+    "start:server": "npm start --prefix server",
+    "start:client": "npm start --prefix client"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/DavidKopl/AquaponicsUI.git"
@@ -24,5 +24,11 @@
     "url": "https://github.com/DavidKopl/AquaponicsUI/issues"
   },
   "homepage": "https://github.com/DavidKopl/AquaponicsUI#readme",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5"
+  }
 }
