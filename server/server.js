@@ -112,40 +112,33 @@ app.post('/data', validateData, (req, res) => {
   }
 });
 
-// Endpoint pro získání dat
-// app.get('/data/sensor_data', async (req, res) => {
-//   try {
-//     const rawData = await Data.find();
-//     const formattedData = rawData.map((item) => ({
-//       sensor_id: item.sensor_id,
-//       temperature: item.temperature,
-//       humidity: item.humidity,
-//       co2: item.co2,
-//       ec: item.ec,
-//       ph: item.ph,
-//       do: item.do,
-//       vpd: {
-//         current_air_VPD: item.vpd.current_air_VPD,
-//         current_leaf_VPD: item.vpd.current_leaf_VPD,
-//         rh_for_leaf_VPD_Optimum: item.vpd.rh_for_leaf_VPD_Optimum,
-//         rh_for_leaf_VPD_min: item.vpd.rh_for_leaf_VPD_min,
-//         rh_for_leaf_VPD_max: item.vpd.rh_for_leaf_VPD_max,
-//       },
-//       target_vpd: item.target_vpd,
-//       adc_readings: item.adc_readings,
-//       relays: item.relays,
-//       sensor_errors: item.sensor_errors,
-//     }));
-//     res.json(formattedData);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
-
 app.get('/data/sensor_data', async (req, res) => {
   try {
     const rawData = await Data.find(); // Načteme všechna data z databáze
-    const interval = 10 * 60 * 1000; // 10 minut (v milisekundách)
+    const granularity = req.query.granularity || '10min'; // Default: minute
+    switch (granularity) {
+      case '10min':
+        interval = 10 * 60 * 1000; // 10 minut
+        break;
+      case 'hour':
+        interval = 60 * 60 * 1000; // 1 hodina
+        break;
+      case 'day':
+        interval = 24 * 60 * 60 * 1000; // 1 den
+        break;
+      case 'week':
+        interval = 7 * 24 * 60 * 60 * 1000; // 1 týden
+        break;
+      case 'month':
+        interval = 30 * 24 * 60 * 60 * 1000; // 1 měsíc (přibližně 30 dní)
+        break;
+      case 'quarter':
+        interval = 3 * 30 * 24 * 60 * 60 * 1000; // 1 čtvrtletí (přibližně 90 dní)
+        break;
+      default:
+        interval = 10 * 60 * 1000; // Default: 10 minut
+        break;
+    }
 
     // Agregace dat za 10 minutové intervaly
     const aggregatedData = aggregateData(rawData, interval);

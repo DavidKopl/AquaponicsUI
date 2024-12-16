@@ -20,16 +20,20 @@ const getLastValidValue = (data: (number | null)[]) => {
 };
 
 export default function DifferentLength() {
+  const [granularity, setGranularity] = useState('hour'); // Výchozí granularita
   const [chartData, setChartData] = useState<{ x: number[]; y: (number | null)[][] }>({
     x: [],
     y: [],
   });
-
+  const handleGranularityChange = (newGranularity: string) => {
+    setGranularity(newGranularity);
+    // Úprava dat podle nové granularity
+  };
   useEffect(() => {
     // Fetchování dat z API
-    const fetchData = async () => {
+    const fetchData = async (granularity = 'hour') => {
       try {
-        const response = await fetch('http://localhost:3001/data/sensor_data'); // Změňte URL podle potřeby
+        const response = await fetch(`http://localhost:3001/data/sensor_data?granularity=${granularity}`); // Změňte URL podle potřeby
         const data = await response.json();
 
         // Převeďte timestamp na Date objekty
@@ -57,57 +61,63 @@ export default function DifferentLength() {
   }, []);
 
   return (
-    <LineChart
-      xAxis={[
-        {
-          scaleType: 'utc',
-          data: chartData.x,
-        },
-      ]}
-      series={[
-        // Teplota
-        {
-          data: chartData.y.map((values) => values[0]),
-          valueFormatter: (value, context) => {
-            const lastValidValue = getLastValidValue(chartData.y.map((values) => values[0]));
-            return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
+    <>
+      <LineChart
+        xAxis={[
+          {
+            scaleType: 'utc',
+            data: chartData.x,
           },
-        },
-        // Vlhkost
-        {
-          data: chartData.y.map((values) => values[1]),
-          valueFormatter: (value, context) => {
-            const lastValidValue = getLastValidValue(chartData.y.map((values) => values[1]));
-            return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
+        ]}
+        series={[
+          // Teplota
+          {
+            data: chartData.y.map((values) => values[0]),
+            valueFormatter: (value, context) => {
+              const lastValidValue = getLastValidValue(chartData.y.map((values) => values[0]));
+              return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
+            },
           },
-        },
-        // CO2
-        // {
-        //   data: chartData.y.map((values) => values[2]),
-        //   valueFormatter: (value, context) => {
-        //     const lastValidValue = getLastValidValue(chartData.y.map((values) => values[2]));
-        //     return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
-        //   },
-        // },
-        // EC
-        // {
-        //   data: chartData.y.map((values) => values[3]),
-        //   valueFormatter: (value, context) => {
-        //     const lastValidValue = getLastValidValue(chartData.y.map((values) => values[3]));
-        //     return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
-        //   },
-        // },
-        // // pH
-        // {
-        //   data: chartData.y.map((values) => values[4]),
-        //   valueFormatter: (value, context) => {
-        //     const lastValidValue = getLastValidValue(chartData.y.map((values) => values[4]));
-        //     return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
-        //   },
-        // },
-      ]}
-      height={300}
-      margin={{ top: 10, bottom: 20 }}
-    />
+          // Vlhkost
+          {
+            data: chartData.y.map((values) => values[1]),
+            valueFormatter: (value, context) => {
+              const lastValidValue = getLastValidValue(chartData.y.map((values) => values[1]));
+              return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
+            },
+          },
+          // CO2
+          // {
+          //   data: chartData.y.map((values) => values[2]),
+          //   valueFormatter: (value, context) => {
+          //     const lastValidValue = getLastValidValue(chartData.y.map((values) => values[2]));
+          //     return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
+          //   },
+          // },
+          // EC
+          // {
+          //   data: chartData.y.map((values) => values[3]),
+          //   valueFormatter: (value, context) => {
+          //     const lastValidValue = getLastValidValue(chartData.y.map((values) => values[3]));
+          //     return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
+          //   },
+          // },
+          // // pH
+          // {
+          //   data: chartData.y.map((values) => values[4]),
+          //   valueFormatter: (value, context) => {
+          //     const lastValidValue = getLastValidValue(chartData.y.map((values) => values[4]));
+          //     return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
+          //   },
+          // },
+        ]}
+        height={300}
+        // width={500}
+        margin={{ top: 10, bottom: 20 }}
+      />
+      <button onClick={() => handleGranularityChange('minute')}>Minutová granularita</button>
+      <button onClick={() => handleGranularityChange('hour')}>Hodinová granularita</button>
+      <button onClick={() => handleGranularityChange('day')}>Denní granularita</button>
+    </>
   );
 }
