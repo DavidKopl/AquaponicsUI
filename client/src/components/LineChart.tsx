@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { LineChart } from '@mui/x-charts/LineChart';
+import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from '@mui/material'; // Import správného typu pro SelectChangeEvent
 import { format } from 'date-fns';
 
 let lastValidValue: number | null = null;
@@ -25,52 +26,60 @@ export default function DifferentLength() {
     x: [],
     y: [],
   });
-  const handleGranularityChange = (newGranularity: string) => {
+
+  // Funkce pro změnu granularity
+  const handleGranularityChange = async (event: SelectChangeEvent<string>) => {
+    const newGranularity = event.target.value;
     setGranularity(newGranularity);
-    // Úprava dat podle nové granularity
+
+    // Fetchování dat s novou granularitou
+    await fetchData(newGranularity);
   };
+
+  // Funkce pro fetchování dat z API
+  const fetchData = async (granularity = '10min') => {
+    try {
+      const response = await fetch(`http://localhost:3001/data/sensor_data?granularity=${granularity}`);
+      const data = await response.json();
+
+      // Převeďte timestamp na Date objekty
+      const xValues: number[] = data.map((entry: any) => new Date(entry.timestamp).getTime());
+
+      // Zpracování hodnot pro každou kategorii (teplota, vlhkost, CO2, EC, pH)
+      const yValues: (number | null)[][] = data.map((entry: any) => [
+        entry.temperature, // Teplota
+        entry.humidity, // Vlhkost
+        entry.co2, // CO2
+        entry.ec, // EC
+        entry.ph, // pH
+      ]);
+
+      setChartData({ x: xValues, y: yValues });
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
   useEffect(() => {
-    // Fetchování dat z API
-    const fetchData = async (granularity = 'hour') => {
-      try {
-        const response = await fetch(`http://localhost:3001/data/sensor_data?granularity=${granularity}`); // Změňte URL podle potřeby
-        const data = await response.json();
-
-        // Převeďte timestamp na Date objekty
-        const xValues: number[] = data.map((entry: any) => new Date(entry.timestamp).getTime()); // Převeďte na timestamp (číslo)
-
-        // Zpracování hodnot pro každou kategorii (teplota, vlhkost, CO2, EC, pH)
-        const yValues: (number | null)[][] = data.map((entry: any) => [
-          entry.temperature, // Teplota
-          entry.humidity, // Vlhkost
-          entry.co2, // CO2
-          entry.ec, // EC
-          entry.ph, // pH
-        ]);
-
-        console.log('xValues: ', xValues);
-        console.log('yValues: ', yValues);
-
-        setChartData({ x: xValues, y: yValues });
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+    fetchData(granularity); // Načíst data při prvním renderu
+  }, [granularity]);
 
   return (
     <>
+      {/* Dropdown pro výběr granularity */}
+      <FormControl style={{ marginLeft: '20px' }} margin="normal">
+        <InputLabel>Granularita</InputLabel>
+        <Select value={granularity} onChange={handleGranularityChange} label="Granularita">
+          <MenuItem value="minute">Minutová granularita</MenuItem>
+          <MenuItem value="hour">Hodinová granularita</MenuItem>
+          <MenuItem value="day">Denní granularita</MenuItem>
+          <MenuItem value="week">Týdenní granularita</MenuItem>
+          <MenuItem value="month">Měsíční granularita</MenuItem>
+        </Select>
+      </FormControl>
       <LineChart
-        xAxis={[
-          {
-            scaleType: 'utc',
-            data: chartData.x,
-          },
-        ]}
+        xAxis={[{ scaleType: 'utc', data: chartData.x }]}
         series={[
-          // Teplota
           {
             data: chartData.y.map((values) => values[0]),
             valueFormatter: (value, context) => {
@@ -78,7 +87,6 @@ export default function DifferentLength() {
               return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
             },
           },
-          // Vlhkost
           {
             data: chartData.y.map((values) => values[1]),
             valueFormatter: (value, context) => {
@@ -86,38 +94,11 @@ export default function DifferentLength() {
               return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
             },
           },
-          // CO2
-          // {
-          //   data: chartData.y.map((values) => values[2]),
-          //   valueFormatter: (value, context) => {
-          //     const lastValidValue = getLastValidValue(chartData.y.map((values) => values[2]));
-          //     return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
-          //   },
-          // },
-          // EC
-          // {
-          //   data: chartData.y.map((values) => values[3]),
-          //   valueFormatter: (value, context) => {
-          //     const lastValidValue = getLastValidValue(chartData.y.map((values) => values[3]));
-          //     return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
-          //   },
-          // },
-          // // pH
-          // {
-          //   data: chartData.y.map((values) => values[4]),
-          //   valueFormatter: (value, context) => {
-          //     const lastValidValue = getLastValidValue(chartData.y.map((values) => values[4]));
-          //     return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
-          //   },
-          // },
         ]}
         height={300}
-        // width={500}
+        // width={600}
         margin={{ top: 10, bottom: 20 }}
       />
-      <button onClick={() => handleGranularityChange('minute')}>Minutová granularita</button>
-      <button onClick={() => handleGranularityChange('hour')}>Hodinová granularita</button>
-      <button onClick={() => handleGranularityChange('day')}>Denní granularita</button>
     </>
   );
 }
