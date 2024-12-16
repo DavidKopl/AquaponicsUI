@@ -8,6 +8,7 @@ const dataSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
   temperature: Number,
   humidity: Number,
+  target_vpd: Number,
   vpd: {
     current_air_VPD: { type: Number, default: null },
     current_leaf_VPD: { type: Number, default: null },
@@ -15,7 +16,6 @@ const dataSchema = new mongoose.Schema({
     rh_for_leaf_VPD_min: { type: Number, default: null },
     rh_for_leaf_VPD_max: { type: Number, default: null },
   },
-  target_vpd: Number,
   co2: { type: Number, default: null },
   ec: { type: Number, default: null },
   ph: { type: Number, default: null },

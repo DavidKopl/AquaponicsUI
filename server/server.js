@@ -116,6 +116,8 @@ app.get('/data/sensor_data', async (req, res) => {
   try {
     const rawData = await Data.find(); // Načteme všechna data z databáze
     const granularity = req.query.granularity || '10min'; // Default: minute
+    let interval;
+
     switch (granularity) {
       case '10min':
         interval = 10 * 60 * 1000; // 10 minut
@@ -140,64 +142,38 @@ app.get('/data/sensor_data', async (req, res) => {
         break;
     }
 
-    // Agregace dat za 10 minutové intervaly
+    // Agregace dat za definovaný interval
     const aggregatedData = aggregateData(rawData, interval);
 
-    // Vrátíme zpracovaná data
-    res.json(aggregatedData);
+    // Přidáme VPD informace do každého záznamu
+    const responseData = aggregatedData.map((item) => {
+      // Získáme VPD hodnoty z uložených dat
+      const { temperature, humidity, target_vpd } = item;
+      const current_air_VPD = calculateVPD(temperature, humidity);
+      const current_leaf_VPD = calculateLeafVPD(temperature, temperature - 2, humidity);
+      const rh_for_leaf_VPD_Optimum = calculateRHForLeafVPD(temperature, target_vpd, temperature - 2);
+      const rh_for_leaf_VPD_min = calculateRHForLeafVPD(temperature, target_vpd + 0.2, temperature - 2);
+      const rh_for_leaf_VPD_max = calculateRHForLeafVPD(temperature, target_vpd - 0.2, temperature - 2);
+
+      // Přidáme VPD hodnoty do každého záznamu
+      return {
+        ...item,
+        vpd: {
+          current_air_VPD,
+          current_leaf_VPD,
+          rh_for_leaf_VPD_Optimum,
+          rh_for_leaf_VPD_min,
+          rh_for_leaf_VPD_max,
+        },
+      };
+    });
+
+    // Vrátíme zpracovaná data s VPD
+    res.json(responseData);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
-
-// Endpoint pro ukládání konfigurace do MongoDB - funguje jen na první iteraci
-// app.post('/config', async (req, res) => {
-//   const { sensor_id } = req.body;
-//   if (!sensor_id) {
-//     return res.status(400).send('sensor_id is required');
-//   }
-//   try {
-//     // Vytvoření nové instance konfigurace
-//     const config = new Config({
-//       sensor_id,
-//       dht_pin: 4,
-//       config_update_time: 10,
-//       relay_pins: [10, 17, 27, 22],
-//       adc_threshold: 10,
-//       temp_hum_err: false,
-//       ec_err: false,
-//       ph_err: false,
-//       do_err: false,
-//       one_point_calibration: true,
-//       cal1_v: 195,
-//       cal1_t: 25,
-//       do_table: [14460, 14220, 13820, 13440, 13090, 12740, 12420, 12110, 11810, 11530, 11260, 11010, 10770, 10530, 10300, 10080, 9860, 9660, 9460, 9270, 9080, 8900, 8730, 8570, 8410, 8250, 8110, 7960, 7820, 7690, 7560, 7430, 7300, 7180, 7070, 6950, 6840, 6730, 6630, 6530, 6410],
-//       max_humidity: 90,
-//       max_humidity_gap: 10,
-//       max_temperature: 30,
-//       max_temperature_gap: 10,
-//       min_temperature: 15,
-//       min_temperature_gap: 10,
-//       min_co: 600,
-//       min_co_gap: 200,
-//       target_vpd: 1.2,
-//       co2_min: 600,
-//       co2_max: 800,
-//       temp_min: 15,
-//       temp_max: 30,
-//       humidity_min: 50,
-//       humidity_max: 90,
-//     });
-
-//     // Uložení do databáze
-//     await config.save();
-//     console.log('Config saved:', config);
-//     res.status(200).send('Configuration saved successfully!');
-//   } catch (err) {
-//     console.error('Error saving config:', err);
-//     res.status(500).send('Failed to save configuration');
-//   }
-// });
 
 app.get('/config', (req, res) => {
   // brat data (ne staticky odtud ale )z DTB a posilat je do Pythonu

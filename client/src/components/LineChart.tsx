@@ -6,7 +6,8 @@ import { format } from 'date-fns';
 interface MyLineChartProps {
   label?: string | null;
   unit?: string;
-  selectedParameter: 'temperature' | 'humidity' | 'co2' | 'ec' | 'ph';
+  color?: string;
+  selectedParameter: 'temperature' | 'humidity' | 'co2' | 'ec' | 'ph' | 'current_leaf_VPD';
 }
 
 let lastValidValue: number | null = null;
@@ -26,7 +27,7 @@ const getLastValidValue = (data: (number | null)[]) => {
   return null;
 };
 
-export default function MyLineChart({ selectedParameter, label, unit }: MyLineChartProps) {
+export default function MyLineChart({ selectedParameter, label, unit, color }: MyLineChartProps) {
   const [granularity, setGranularity] = useState('hour'); // Výchozí granularita
   const [chartData, setChartData] = useState<{ x: number[]; y: (number | null)[][] }>({
     x: [],
@@ -58,6 +59,7 @@ export default function MyLineChart({ selectedParameter, label, unit }: MyLineCh
         entry.co2, // CO2
         entry.ec, // EC
         entry.ph, // pH
+        entry.vpd.current_leaf_VPD, // Přidejte current_leaf_VPD do grafu
       ]);
 
       setChartData({ x: xValues, y: yValues });
@@ -106,13 +108,15 @@ export default function MyLineChart({ selectedParameter, label, unit }: MyLineCh
         return 3;
       case 'ph':
         return 4;
+      case 'current_leaf_VPD':
+        return 5;
       default:
         return 0;
     }
   };
 
   return (
-    <>
+    <div>
       {/* Dropdown pro výběr granularity */}
       <FormControl style={{ marginLeft: '20px' }} margin="normal">
         <InputLabel>Granularita</InputLabel>
@@ -138,6 +142,7 @@ export default function MyLineChart({ selectedParameter, label, unit }: MyLineCh
           {
             label: label ? `${label} ${unit}` : '',
             data: chartData.y.map((values) => values[getParameterIndex()]),
+            color: color || '#4e79a7',
             valueFormatter: (value, context) => {
               const lastValidValue = getLastValidValue(chartData.y.map((values) => values[getParameterIndex()]));
               return value == null ? (lastValidValue != null ? lastValidValue.toString() : 'NaN') : value.toString();
@@ -147,6 +152,6 @@ export default function MyLineChart({ selectedParameter, label, unit }: MyLineCh
         height={300}
         margin={{ top: 10, bottom: 20 }}
       />
-    </>
+    </div>
   );
 }
