@@ -1,6 +1,6 @@
 import React from 'react';
 import Header from './components/Header';
-import DifferentLength from './components/LineChart';
+import MyLineChart from './components/LineChart';
 import ArcDesign from './components/Gauge';
 // import './index.css';
 
@@ -15,7 +15,8 @@ function App() {
         </span>
         kde data přicházejí
       </blockquote>
-      <DifferentLength />
+      <MyLineChart selectedParameter="humidity" label={'Vlhkost'} unit={'%'} />
+      <MyLineChart selectedParameter="temperature" />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <ArcDesign value={1000} min={400} max={1600} opt={1000} name="CO2" />
         <ArcDesign value={1000} min={400} max={1600} opt={1000} name="EC" />
