@@ -41,8 +41,24 @@ function App() {
         clearInterval(calibrationTimer);
         setCalibrationCountdown(null); // Reset na null po dokončení kalibrace
         setActiveCalibration(null); // Reset aktivní kalibrace
+        handleCalibrationChange('ph', false);
+        handleCalibrationChange('ec', false);
+        handleCalibrationChange('do', false);
       }
     }, 1000);
+  };
+
+  const handleCalibrationChange = async (type: string, isActive: boolean) => {
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/update-calibration`, {
+        ecCalibration: type === 'ec' ? isActive : undefined,
+        phCalibration: type === 'ph' ? isActive : undefined,
+        doCalibration: type === 'do' ? isActive : undefined,
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error updating calibration:', error);
+    }
   };
 
   useEffect(() => {
@@ -84,15 +100,39 @@ function App() {
       </blockquote>
 
       <div className="flex gap-4 m-5 justify-center">
-        <button type="button" onClick={() => startCountdown('ph')} disabled={activeCalibration !== null} className={`inline-block rounded border-2 border-blue-500 px-6 pb-1.5 pt-2 text-xs font-medium uppercase leading-normal transition duration-200 ease-in-out ${activeCalibration ? 'bg-gray-300 text-gray-500' : 'bg-blue-100 text-blue-500 hover:bg-blue-500 hover:text-white'}`}>
+        <button
+          type="button"
+          onClick={() => {
+            startCountdown('ph');
+            handleCalibrationChange('ph', true);
+          }}
+          disabled={activeCalibration !== null}
+          className={`inline-block rounded border-2 border-blue-500 px-6 pb-1.5 pt-2 text-xs font-medium uppercase leading-normal transition duration-200 ease-in-out ${activeCalibration ? 'bg-gray-300 text-gray-500' : 'bg-blue-100 text-blue-500 hover:bg-blue-500 hover:text-white'}`}
+        >
           pH calibration
         </button>
 
-        <button type="button" onClick={() => startCountdown('ec')} disabled={activeCalibration !== null} className={`inline-block rounded border-2 border-green-500 px-6 pb-1.5 pt-2 text-xs font-medium uppercase leading-normal transition duration-200 ease-in-out ${activeCalibration ? 'bg-gray-300 text-gray-500' : 'bg-green-100 text-green-500 hover:bg-green-500 hover:text-white'}`}>
+        <button
+          type="button"
+          onClick={() => {
+            startCountdown('ec');
+            handleCalibrationChange('ec', true);
+          }}
+          disabled={activeCalibration !== null}
+          className={`inline-block rounded border-2 border-green-500 px-6 pb-1.5 pt-2 text-xs font-medium uppercase leading-normal transition duration-200 ease-in-out ${activeCalibration ? 'bg-gray-300 text-gray-500' : 'bg-green-100 text-green-500 hover:bg-green-500 hover:text-white'}`}
+        >
           EC calibration
         </button>
 
-        <button type="button" onClick={() => startCountdown('do')} disabled={activeCalibration !== null} className={`inline-block rounded border-2 border-purple-500 px-6 pb-1.5 pt-2 text-xs font-medium uppercase leading-normal transition duration-200 ease-in-out ${activeCalibration ? 'bg-gray-300 text-gray-500' : 'bg-purple-100 text-purple-500 hover:bg-purple-500 hover:text-white'}`}>
+        <button
+          type="button"
+          onClick={() => {
+            startCountdown('do');
+            handleCalibrationChange('do', true);
+          }}
+          disabled={activeCalibration !== null}
+          className={`inline-block rounded border-2 border-purple-500 px-6 pb-1.5 pt-2 text-xs font-medium uppercase leading-normal transition duration-200 ease-in-out ${activeCalibration ? 'bg-gray-300 text-gray-500' : 'bg-purple-100 text-purple-500 hover:bg-purple-500 hover:text-white'}`}
+        >
           DO calibration
         </button>
       </div>

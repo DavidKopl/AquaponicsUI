@@ -5,7 +5,7 @@ const connectDB = require('./db'); // Importování připojení k databázi
 const cors = require('cors');
 const validateData = require('./middleware/validateData');
 const Data = require('./model/dataModel'); // Importování modelu pro uložení dat
-// const Config = require('./model/configModel'); // Importování modelu pro uložení dat
+const Config = require('./model/configModel'); // Importování modelu pro uložení dat
 const { calculateVPD, calculateLeafVPD, calculateRHForLeafVPD, calculateRHForVPD } = require('./controllers/VPDFunctions'); // Importování funkcí
 
 // Middleware pro zpracování JSON požadavků
@@ -174,43 +174,47 @@ app.get('/data/sensor_data', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
+let config = {
+  wifi_ssid: 'TP-Link_F7DA',
+  wifi_password: '84403315',
+  dht_pin: 4,
+  config_update_time: 10,
+  relay_pins: [10, 17, 27, 22],
+  adc_threshold: 10,
+  temp_hum_err: false,
+  ec_err: false,
+  ph_err: false,
+  do_err: false,
+  one_point_calibration: true,
+  cal1_v: 195,
+  cal1_t: 25,
+  ecCalibration: false,
+  phCalibration: false,
+  doCalibration: false,
+  ec_active: false,
+  ph_active: false,
+  do_active: false,
+  do_table: [14460, 14220, 13820, 13440, 13090, 12740, 12420, 12110, 11810, 11530, 11260, 11010, 10770, 10530, 10300, 10080, 9860, 9660, 9460, 9270, 9080, 8900, 8730, 8570, 8410, 8250, 8110, 7960, 7820, 7690, 7560, 7430, 7300, 7180, 7070, 6950, 6840, 6730, 6630, 6530, 6410],
+  max_humidity: 90,
+  max_humidity_gap: 10,
+  max_temperature: 30,
+  max_temperature_gap: 10,
+  min_temperature: 15,
+  min_temperature_gap: 10,
+  min_co: 600,
+  min_co_gap: 200,
+  target_vpd: 1.2,
+  co2_min: 600,
+  co2_max: 800,
+  temp_min: 15,
+  temp_max: 30,
+  humidity_min: 50,
+  humidity_max: 90,
+  timesleep: 10,
+};
 app.get('/config', (req, res) => {
   // brat data (ne staticky odtud ale )z DTB a posilat je do Pythonu
-  const config = {
-    wifi_ssid: 'TP-Link_F7DA',
-    wifi_password: '84403315',
-    dht_pin: 4,
-    config_update_time: 10,
-    relay_pins: [10, 17, 27, 22],
-    adc_threshold: 10,
-    // last_temperature: 25,
-    // last_humidity: 50,
-    temp_hum_err: false,
-    ec_err: false,
-    ph_err: false,
-    do_err: false,
-    one_point_calibration: true,
-    cal1_v: 195,
-    cal1_t: 25,
-    do_table: [14460, 14220, 13820, 13440, 13090, 12740, 12420, 12110, 11810, 11530, 11260, 11010, 10770, 10530, 10300, 10080, 9860, 9660, 9460, 9270, 9080, 8900, 8730, 8570, 8410, 8250, 8110, 7960, 7820, 7690, 7560, 7430, 7300, 7180, 7070, 6950, 6840, 6730, 6630, 6530, 6410],
-    max_humidity: 90,
-    max_humidity_gap: 10,
-    max_temperature: 30,
-    max_temperature_gap: 10,
-    min_temperature: 15,
-    min_temperature_gap: 10,
-    min_co: 600,
-    min_co_gap: 200,
-    target_vpd: 1.2,
-    co2_min: 600,
-    co2_max: 800,
-    temp_min: 15,
-    temp_max: 30,
-    humidity_min: 50,
-    humidity_max: 90,
-    timesleep: 10,
-  };
+
   res.json(config);
 });
 
@@ -229,6 +233,23 @@ app.get('/data/latest-data', async (req, res) => {
   } catch (error) {
     console.error('Error fetching data:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.post('/update-calibration', (req, res) => {
+  const { ecCalibration, phCalibration, doCalibration } = req.body;
+
+  try {
+    // Aktualizace kalibrace na základě vstupních dat
+    if (ecCalibration !== undefined) config.ecCalibration = ecCalibration;
+    if (phCalibration !== undefined) config.phCalibration = phCalibration;
+    if (doCalibration !== undefined) config.doCalibration = doCalibration;
+
+    // Odpověď pro úspěšné provedení
+    res.status(200).json({ message: 'Calibration updated successfully' });
+  } catch (err) {
+    console.error('Error updating calibration:', err);
+    res.status(500).json({ message: 'Failed to update calibration' });
   }
 });
 
