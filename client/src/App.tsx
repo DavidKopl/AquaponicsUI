@@ -5,29 +5,63 @@ import ArcDesign from './components/Gauge';
 import axios from 'axios';
 
 function App() {
-  const [latestData, setLatestData] = useState(null);
+  const [latestData, setLatestData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [calibrationCountdown, setCalibrationCountdown] = useState<number | null>(null);
+  const [activeCalibration, setActiveCalibration] = useState<string | null>(null); // Stav pro sledování aktivního tlačítka
+  const startCountdown = (type: string) => {
+    setActiveCalibration(type); // Nastavíme aktivní kalibraci
+    setCountdown(5);
+    setCalibrationCountdown(null);
 
-  // Načítání dat při načtení komponenty
+    let currentCountdown = 5;
+
+    const readyTimer = setInterval(() => {
+      currentCountdown -= 1;
+      setCountdown(currentCountdown);
+
+      if (currentCountdown <= 0) {
+        clearInterval(readyTimer);
+        setCountdown(null); // Reset na null po dosažení nuly
+        startCalibrationTimer();
+      }
+    }, 1000);
+  };
+
+  const startCalibrationTimer = () => {
+    let currentCalibration = 30;
+    setCalibrationCountdown(currentCalibration);
+
+    const calibrationTimer = setInterval(() => {
+      currentCalibration -= 1;
+      setCalibrationCountdown(currentCalibration);
+
+      if (currentCalibration <= 0) {
+        clearInterval(calibrationTimer);
+        setCalibrationCountdown(null); // Reset na null po dokončení kalibrace
+        setActiveCalibration(null); // Reset aktivní kalibrace
+      }
+    }, 1000);
+  };
+
   useEffect(() => {
     const fetchLatestData = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/data/latest-data`);
         if (response.data) {
-          setLatestData(response.data); // Uložíme data do stavu
+          setLatestData(response.data);
         } else {
-          setError('No data available'); // Pokud nejsou data, nastavíme chybu
+          setError('No data available');
         }
       } catch (err) {
         console.error(err);
-        setError('Failed to fetch data'); // Nastavíme chybu při selhání požadavku
+        setError('Failed to fetch data');
       }
     };
-
     fetchLatestData();
-  }, []); // Prázdné pole znamená, že se funkce spustí pouze jednou při prvním renderu
+  }, []);
 
-  // Podmínky pro zobrazení chyb nebo načítání
   if (error) {
     return <div>{error}</div>;
   }
@@ -36,7 +70,6 @@ function App() {
     return <div>Loading...</div>;
   }
 
-  // Vytvoření proměnných pro hodnoty z posledního záznamu
   const { temperature, humidity, co2, vpd, ph, ec, do: dissolvedOxygen } = latestData;
 
   return (
@@ -49,6 +82,24 @@ function App() {
         </span>
         kde data přicházejí
       </blockquote>
+
+      <div className="flex gap-4 m-5 justify-center">
+        <button type="button" onClick={() => startCountdown('ph')} disabled={activeCalibration !== null} className={`inline-block rounded border-2 border-blue-500 px-6 pb-1.5 pt-2 text-xs font-medium uppercase leading-normal transition duration-200 ease-in-out ${activeCalibration ? 'bg-gray-300 text-gray-500' : 'bg-blue-100 text-blue-500 hover:bg-blue-500 hover:text-white'}`}>
+          pH calibration
+        </button>
+
+        <button type="button" onClick={() => startCountdown('ec')} disabled={activeCalibration !== null} className={`inline-block rounded border-2 border-green-500 px-6 pb-1.5 pt-2 text-xs font-medium uppercase leading-normal transition duration-200 ease-in-out ${activeCalibration ? 'bg-gray-300 text-gray-500' : 'bg-green-100 text-green-500 hover:bg-green-500 hover:text-white'}`}>
+          EC calibration
+        </button>
+
+        <button type="button" onClick={() => startCountdown('do')} disabled={activeCalibration !== null} className={`inline-block rounded border-2 border-purple-500 px-6 pb-1.5 pt-2 text-xs font-medium uppercase leading-normal transition duration-200 ease-in-out ${activeCalibration ? 'bg-gray-300 text-gray-500' : 'bg-purple-100 text-purple-500 hover:bg-purple-500 hover:text-white'}`}>
+          DO calibration
+        </button>
+      </div>
+
+      {countdown !== null && <p className="text-lg font-medium text-blue-600 flex justify-center">Ready in {countdown}...</p>}
+
+      {calibrationCountdown !== null && <p className="text-lg font-medium text-green-600 flex justify-center">Calibration in process: {calibrationCountdown}...</p>}
       <div className="md:grid grid-cols-2 gap-5 mr-12 ml-12">
         <MyLineChart selectedParameter="temperature" label={'Teplota'} unit={'°C'} color={'#76b7b2'} />
         <MyLineChart selectedParameter="humidity" label={'Vlhkost'} unit={'%'} />
