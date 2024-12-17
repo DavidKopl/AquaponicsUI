@@ -98,8 +98,7 @@ function App() {
         </span>
         kde data přicházejí
       </blockquote>
-
-      <div className="flex gap-4 m-5 justify-center">
+      <div className="flex gap-1 md:gap-5 m-5 justify-center">
         <button
           type="button"
           onClick={() => {
@@ -111,7 +110,6 @@ function App() {
         >
           pH calibration
         </button>
-
         <button
           type="button"
           onClick={() => {
@@ -123,7 +121,6 @@ function App() {
         >
           EC calibration
         </button>
-
         <button
           type="button"
           onClick={() => {
@@ -138,7 +135,6 @@ function App() {
       </div>
 
       {countdown !== null && <p className="text-lg font-medium text-blue-600 flex justify-center">Ready in {countdown}...</p>}
-
       {calibrationCountdown !== null && <p className="text-lg font-medium text-green-600 flex justify-center">Calibration in process: {calibrationCountdown}...</p>}
       <div className="md:grid grid-cols-2 gap-5 mr-12 ml-12">
         <MyLineChart selectedParameter="temperature" label={'Teplota'} unit={'°C'} color={'#76b7b2'} />
