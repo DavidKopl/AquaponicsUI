@@ -78,7 +78,7 @@ export default function ArcDesign({ value, min, max, opt, name }: ArcDesignProps
       />
       <p className="text-lg font-semibold text-gray-700 mt-2">
         <span className="text-gray-500">{name}: </span>
-        <span style={{ color: nameColor }}>{value}</span>
+        <span style={{ color: nameColor }}>{value != null ? value.toFixed(2) : 'N/A'}</span>
       </p>
     </div>
   );

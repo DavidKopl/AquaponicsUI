@@ -39,13 +39,12 @@ const aggregateData = (data, interval) => {
       // Přidáme průměr pro předchozí interval
       aggregatedData.push({
         timestamp: currentInterval * interval,
-        temperature: tempSum / count,
-        humidity: humiditySum / count,
-        co2: co2Sum / count,
-        ec: ecSum / count,
-        ph: phSum / count,
+        temperature: count ? parseFloat((tempSum / count).toFixed(2)) : null,
+        humidity: count ? parseFloat((humiditySum / count).toFixed(2)) : null,
+        co2: count ? parseFloat((co2Sum / count).toFixed(0)) : null,
+        ec: count ? parseFloat((ecSum / count).toFixed(2)) : null,
+        ph: count ? parseFloat((phSum / count).toFixed(2)) : null,
       });
-
       // Přepneme na nový interval
       currentInterval = intervalKey;
       tempSum = item.temperature;
@@ -81,7 +80,7 @@ app.post('/data', validateData, (req, res) => {
     const rh_for_leaf_VPD_Optimum = calculateRHForLeafVPD(temperature, target_vpd, temperature - 2);
     const rh_for_leaf_VPD_min = calculateRHForLeafVPD(temperature, target_vpd + 0.2, temperature - 2);
     const rh_for_leaf_VPD_max = calculateRHForLeafVPD(temperature, target_vpd - 0.2, temperature - 2);
-
+    //TODO:Omezit cas jak casto posilam data do Monga
     const newData = new Data({
       sensor_id,
       temperature,
