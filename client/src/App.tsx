@@ -49,7 +49,7 @@ function App() {
         </span>
         kde data přicházejí
       </blockquote>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', margin: '0 50px 0 50px', gap: '20px' }}>
+      <div className="md:grid grid-cols-2 gap-5 mr-12 ml-12">
         <MyLineChart selectedParameter="temperature" label={'Teplota'} unit={'°C'} color={'#76b7b2'} />
         <MyLineChart selectedParameter="humidity" label={'Vlhkost'} unit={'%'} />
         <MyLineChart selectedParameter="co2" label={'CO2'} unit={'ppm'} color={'#f28e2c'} />

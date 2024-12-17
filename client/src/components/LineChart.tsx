@@ -118,7 +118,7 @@ export default function MyLineChart({ selectedParameter, label, unit, color }: M
   return (
     <div>
       {/* Dropdown pro výběr granularity */}
-      <FormControl style={{ marginLeft: '20px' }} margin="normal">
+      <FormControl className="ml-5" margin="normal">
         <InputLabel>Granularita</InputLabel>
         <Select value={granularity} onChange={handleGranularityChange} label="Granularita">
           <MenuItem value="minute">Minutová granularita</MenuItem>
