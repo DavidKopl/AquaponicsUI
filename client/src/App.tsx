@@ -86,7 +86,7 @@ function App() {
     return <div>Loading...</div>;
   }
 
-  const { temperature, humidity, co2, vpd, ph, ec, do: dissolvedOxygen } = latestData;
+  const { temperature, humidity, co2, vpd, ph, ec } = latestData;
 
   return (
     <>
@@ -141,6 +141,7 @@ function App() {
         <MyLineChart selectedParameter="humidity" label={'Vlhkost'} unit={'%'} />
         <MyLineChart selectedParameter="co2" label={'CO2'} unit={'ppm'} color={'#f28e2c'} />
         <MyLineChart selectedParameter="current_leaf_VPD" label={'VPD (list)'} unit={'(kPa)'} color={'green'} />
+        <MyLineChart selectedParameter="do" label={'DO'} unit={'ppm'} color={'blue'} />
         <div>
           <p>Poslední naměřená hodnota EC: {ec != null ? ec.toFixed(2) : 'N/A'}</p>
           <p>Poslední naměřená hodnota pH: {ph != null ? ph.toFixed(2) : 'N/A'}</p>

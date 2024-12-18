@@ -22,6 +22,7 @@ const aggregateData = (data, interval) => {
   let co2Sum = 0;
   let ecSum = 0;
   let phSum = 0;
+  let doSum = 0;
   let count = 0;
 
   data.forEach((item) => {
@@ -34,6 +35,7 @@ const aggregateData = (data, interval) => {
       co2Sum += item.co2;
       ecSum += item.ec;
       phSum += item.ph;
+      doSum += item.do;
       count++;
     } else {
       // Přidáme průměr pro předchozí interval
@@ -44,6 +46,7 @@ const aggregateData = (data, interval) => {
         co2: count ? parseFloat((co2Sum / count).toFixed(0)) : null,
         ec: count ? parseFloat((ecSum / count).toFixed(2)) : null,
         ph: count ? parseFloat((phSum / count).toFixed(2)) : null,
+        do: count ? parseFloat((doSum / count).toFixed(2)) : null,
       });
       // Přepneme na nový interval
       currentInterval = intervalKey;
@@ -52,6 +55,7 @@ const aggregateData = (data, interval) => {
       co2Sum = item.co2;
       ecSum = item.ec;
       phSum = item.ph;
+      doSum = item.do;
       count = 1;
     }
   });
@@ -60,11 +64,12 @@ const aggregateData = (data, interval) => {
   if (count > 0) {
     aggregatedData.push({
       timestamp: currentInterval * interval,
-      temperature: tempSum / count,
-      humidity: humiditySum / count,
-      co2: co2Sum / count,
-      ec: ecSum / count,
-      ph: phSum / count,
+      temperature: count ? parseFloat((tempSum / count).toFixed(2)) : null,
+      humidity: count ? parseFloat((humiditySum / count).toFixed(2)) : null,
+      co2: count ? parseFloat((co2Sum / count).toFixed(0)) : null,
+      ec: count ? parseFloat((ecSum / count).toFixed(2)) : null,
+      ph: count ? parseFloat((phSum / count).toFixed(2)) : null,
+      do: count ? parseFloat((doSum / count).toFixed(2)) : null,
     });
   }
 
@@ -147,7 +152,7 @@ app.get('/data/sensor_data', async (req, res) => {
     // Přidáme VPD informace do každého záznamu
     const responseData = aggregatedData.map((item) => {
       // Získáme VPD hodnoty z uložených dat
-      const { temperature, humidity, target_vpd } = item;
+      const { temperature, humidity, target_vpd, do_value } = item;
       const current_air_VPD = calculateVPD(temperature, humidity);
       const current_leaf_VPD = calculateLeafVPD(temperature, temperature - 2, humidity);
       const rh_for_leaf_VPD_Optimum = calculateRHForLeafVPD(temperature, target_vpd, temperature - 2);

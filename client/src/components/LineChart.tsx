@@ -7,7 +7,7 @@ interface MyLineChartProps {
   label?: string | null;
   unit?: string;
   color?: string;
-  selectedParameter: 'temperature' | 'humidity' | 'co2' | 'ec' | 'ph' | 'current_leaf_VPD';
+  selectedParameter: 'temperature' | 'humidity' | 'co2' | 'ec' | 'ph' | 'current_leaf_VPD' | 'do';
 }
 
 let lastValidValue: number | null = null;
@@ -49,10 +49,11 @@ export default function MyLineChart({ selectedParameter, label, unit, color }: M
       const response = await fetch(`${process.env.REACT_APP_API_URL}/data/sensor_data?granularity=${granularity}`);
       const data = await response.json();
 
+      console.log('API Response:', data);
       // Převeďte timestamp na Date objekty
       const xValues: number[] = data.map((entry: any) => new Date(entry.timestamp).getTime());
 
-      // Zpracování hodnot pro každou kategorii (teplota, vlhkost, CO2, EC, pH)
+      // Zpracování hodnot pro každou kategorii (teplota, vlhkost, CO2, EC, pH, do)
       const yValues: (number | null)[][] = data.map((entry: any) => [
         entry.temperature, // Teplota
         entry.humidity, // Vlhkost
@@ -60,8 +61,8 @@ export default function MyLineChart({ selectedParameter, label, unit, color }: M
         entry.ec, // EC
         entry.ph, // pH
         entry.vpd.current_leaf_VPD, // Přidejte current_leaf_VPD do grafu
+        entry.do, // DO
       ]);
-
       setChartData({ x: xValues, y: yValues });
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -110,6 +111,9 @@ export default function MyLineChart({ selectedParameter, label, unit, color }: M
         return 4;
       case 'current_leaf_VPD':
         return 5;
+      case 'do':
+        return 6;
+
       default:
         return 0;
     }
