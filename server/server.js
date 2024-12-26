@@ -179,8 +179,8 @@ app.get('/data/sensor_data', async (req, res) => {
   }
 });
 let config = {
-  wifi_ssid: 'TP-Link_F7DA',
-  wifi_password: '84403315',
+  wifi_ssid: 'STARNET-NOVAKOVA',
+  wifi_password: 'kubicek123',
   dht_pin: 4,
   config_update_time: 10,
   relay_pins: [10, 17, 27, 22],
