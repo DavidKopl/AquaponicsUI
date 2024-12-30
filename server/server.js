@@ -214,7 +214,7 @@ let config = {
   temp_max: 30,
   humidity_min: 50,
   humidity_max: 90,
-  timesleep: 10,
+  timesleep: 60,
 };
 app.get('/config', (req, res) => {
   // brat data (ne staticky odtud ale )z DTB a posilat je do Pythonu
