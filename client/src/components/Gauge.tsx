@@ -33,6 +33,7 @@ const getColorForValue = (value: number, optimalValue: number, minValue: number,
 //   minValue: 400, // Můžete změnit minimální hodnotu
 //   maxValue: 1600, // Můžete změnit maximální hodnotu
 // };
+
 interface ArcDesignProps {
   value: number;
   min: number;

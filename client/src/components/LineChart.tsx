@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from '@mui/material'; // Import správného typu pro SelectChangeEvent
 import { format } from 'date-fns';

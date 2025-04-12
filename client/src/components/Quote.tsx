@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const Quote = () => {
   return (
     <blockquote className="text-2xl font-semibold italic text-center text-slate-900">
