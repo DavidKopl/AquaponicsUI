@@ -4,6 +4,7 @@ require('dotenv').config();
 const connectDB = require('./db'); // Importování připojení k databázi
 const cors = require('cors');
 const validateData = require('./middleware/validateData');
+const authenticateDevice = require('./middleware/auth');
 const Data = require('./model/dataModel'); // Importování modelu pro uložení dat
 const Config = require('./model/configModel'); // Importování modelu pro uložení dat
 const { calculateVPD, calculateLeafVPD, calculateRHForLeafVPD, calculateRHForVPD } = require('./controllers/VPDFunctions'); // Importování funkcí
@@ -77,7 +78,7 @@ const aggregateData = (data, interval) => {
 };
 
 // Endpoint pro příjem/posílání dat do MongoDb
-app.post('/data', validateData, (req, res) => {
+app.post('/data', authenticateDevice, validateData, (req, res) => {
   const { sensor_id, temperature, humidity, target_vpd, co2, ec, ph, do_value, adc_readings, relays, errors } = req.body;
   if (temperature && humidity && target_vpd) {
     const current_air_VPD = calculateVPD(temperature, humidity);
@@ -115,6 +116,17 @@ app.post('/data', validateData, (req, res) => {
     res.status(400).send('Missing required fields');
   }
 });
+// app.get('/api/data', async (req, res) => {
+//   try {
+//     const data = await Data.find()
+//       .sort({ timestamp: -1 }) // seřadí podle timestampu od nejnovějšího
+//       .limit(1000); // omezení na 100 záznamů
+//     res.json(data);
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//     res.status(500).send('Error fetching data');
+//   }
+// });
 
 app.get('/data/sensor_data', async (req, res) => {
   try {
@@ -217,9 +229,9 @@ let config = {
   timesleep: 180,
 };
 app.get('/config', (req, res) => {
-  // brat data (ne staticky odtud ale )z DTB a posilat je do Pythonu
-
+  // TODO: brat data (ne staticky odtud ale )z DTB a posilat je do Pythonu
   res.json(config);
+  res.status(200).json({ message: 'Ok' });
 });
 
 // Endpoint pro získání posledních dat
@@ -231,12 +243,11 @@ app.get('/data/latest-data', async (req, res) => {
     if (!latestData) {
       return res.status(404).json({ message: 'No data found' });
     }
-
     // Vrácení posledního záznamu
     res.json(latestData);
   } catch (error) {
     console.error('Error fetching data:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(400).json({ message: 'Internal server error' });
   }
 });
 

@@ -28,7 +28,7 @@ const getLastValidValue = (data: (number | null)[]) => {
 };
 
 export default function MyLineChart({ selectedParameter, label, unit, color }: MyLineChartProps) {
-  const [granularity, setGranularity] = useState('hour'); // Výchozí granularita
+  const [granularity, setGranularity] = useState('week'); // Výchozí granularita
   const [chartData, setChartData] = useState<{ x: number[]; y: (number | null)[][] }>({
     x: [],
     y: [],
@@ -47,7 +47,9 @@ export default function MyLineChart({ selectedParameter, label, unit, color }: M
   const fetchData = async (granularity: string) => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/data/sensor_data?granularity=${granularity}`);
+      // const response = await fetch(`${process.env.REACT_APP_API_URL}/api/data`);
       const data = await response.json();
+      // data.reverse();
 
       console.log('API Response:', data);
       // Převeďte timestamp na Date objekty
